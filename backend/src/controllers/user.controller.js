@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import { uploadResumeToCloudinary, parseResume } from "../services/resume.service.js";
 
 //Get login user profile
 export const getUserProfile = async(req,res)=>{
@@ -22,6 +23,7 @@ export const getUserProfile = async(req,res)=>{
     }
 };
 
+//Update user profile
 export const updateUserProfile = async(req,res)=>{
     try{
         const user = await User.findById(req.user._id);
@@ -72,3 +74,40 @@ export const updateUserProfile = async(req,res)=>{
         });
     }
 };
+
+//upload resume
+export const uploadResume = async(req,res)=>{
+    try{
+        if(!req.file){
+            return res.status(400).json({
+                message:"No file uploaded"
+            });
+        }
+        const result = await uploadResumeToCloudinary(req.file.buffer);
+        const fileUrl =result.secure_url;
+        //parse data auto
+        const parsedData = await parseResume(fileUrl);
+
+        const user = await User.findById(req.user._id);
+        if(!user){
+            return res.status(400).json({
+                message:"User not found"
+            });
+        }
+        user.resume = {
+            url:fileUrl,
+            parsedData, //System controll
+        };
+        await user.save();
+
+        return res.status(200).json({
+            message : "Resume Upload successfully",
+            resume : user.resume,
+        });
+    }catch(error){
+        return res.status(500).json({
+            message:"Server Error",
+            error:error.message,
+        });
+    }
+}
