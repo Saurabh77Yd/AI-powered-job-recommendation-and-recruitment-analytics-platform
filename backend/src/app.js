@@ -4,6 +4,7 @@ import morgan from "morgan";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import jobRoutes from "./routes/job.routes.js";
 
 const app = express();
 //  Middlewares
@@ -15,7 +16,8 @@ app.use(morgan("dev"));
 //Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/admin", adminRoutes)
+app.use("/api/admin", adminRoutes);
+app.use("/api/jobs", jobRoutes);
 //  Health Check Route
 app.get("/", (req, res) => {
   res.send("API is running...");
