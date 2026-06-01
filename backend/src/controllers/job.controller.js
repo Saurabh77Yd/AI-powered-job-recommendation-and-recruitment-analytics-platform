@@ -43,20 +43,82 @@ export const createJob = async(req, res)=>{
     }
 };
 //Get all job
-export const getAllJob = async(req,res)=>{
+// export const getAllJob = async(req,res)=>{
+//     try{
+//         const jobs = (await Job.find({isActive:true}).populate("postedBy", "firstName email")).sort({createdAt:-1});
+//         return res.status(200).json({
+//             totalJobs:jobs.length,
+//             jobs,
+//         });
+//     }catch(error){
+//         return res.status(500).json({
+//             message : "Server Error",
+//             error : error.message
+//         });
+//     }
+// };
+
+export const getAllJob = async(req, res) =>{
     try{
-        const jobs = (await Job.find({isActive:true}).populate("postedBy", "firstName email")).sort({createdAt:-1});
+        const {keyword, location, experience, jobType, page=1, limit=10} = req.query;
+        let filter = {isActive:true}
+        //search title
+        if(keyword){
+            filter.$or = [
+                {
+                    title:{
+                        $regex: keyword,
+                        $options:"i",
+                    },
+                },
+                {
+                    companyName:{
+                        $regex: keyword,
+                        $options:"i",
+                    },
+                },
+            ];
+        }
+
+        //Location filter
+        if(location){
+            filter.location = {
+                $regex: location,
+                $options: "i",
+            };
+        }
+
+        if(experience){
+            filter.experienceRequired = {
+                $lte:Number(experience),
+            };
+        }
+        //Job Type filter
+        if(jobType){
+            filter.jobType = jobType;
+        }
+        const skip = (Number(page)-1)*Number(limit);
+
+        const jobs = await Job.find(filter).populate(
+            "postedBy",
+            "firstName email"
+        ).sort({createdAt:-1}).skip(skip).limit(Number(limit));
+
+        const totalJobs = await Job.countDocuments(filter);
         return res.status(200).json({
-            totalJobs:jobs.length,
+            totalJobs,
+            currentPage : Number(page),
+            totalPage : Math.ceil(totalJobs/Number(limit)),
             jobs,
         });
     }catch(error){
         return res.status(500).json({
-            message : "Server Error",
-            error : error.message
+            message:"Server Error",
+            error: error.message
         });
     }
-};
+}
+
 //Get Single Job
 export const getSingleJob = async(req, res)=>{
     try{

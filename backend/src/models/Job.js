@@ -11,7 +11,7 @@ const jobSchema = new mongoose.Schema(
             type: String,
             required : true
         },
-        comapanyName:{
+        companyName:{
             type: String,
             required : true,
         },
@@ -26,7 +26,7 @@ const jobSchema = new mongoose.Schema(
             type:Number,
             default:0,
         },
-        skillRequired:[
+        skillsRequired:[
             {
                 type:String
             },

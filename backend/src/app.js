@@ -6,6 +6,8 @@ import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import jobRoutes from "./routes/job.routes.js";
 import applicationRoutes from "./routes/application.routes.js";
+import matchRoutes from "./routes/match.routes.js";
+import analyticsRoutes from "./routes/analytics.routes.js";
 
 const app = express();
 //  Middlewares
@@ -20,6 +22,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/match", matchRoutes);
+app.use("/api/analytics", analyticsRoutes)
 //  Health Check Route
 app.get("/", (req, res) => {
   res.send("API is running...");

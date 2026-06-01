@@ -63,14 +63,14 @@ export const getMyApplications = async(req, res)=>{
 //RECRUITER VIEW  APPLICANT
 export const getJobApplicants = async(req, res)=>{
     try{
-        const job = await Job.findById(req.params.id);
+        const job = await Job.findById(req.params.jobId);
         if(!job){
             return res.status(404).json({
                 message:"Job not found"
             });
         }
         //Ownership check
-        if(Job.postedBy.toString() !== req.user._id.toString()){
+        if(job.postedBy.toString() !== req.user._id.toString()){
             return res.status(403).json({
                 message:"Access denied",
             });
