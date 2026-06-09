@@ -1,5 +1,6 @@
 import Application from "../models/Application.js";
 import Job from "../models/Job.js";
+import Notification from "../models/Notification.js";
 
 //Apply job
 export const applyToJob = async(req, res)=>{
@@ -22,11 +23,18 @@ export const applyToJob = async(req, res)=>{
             });
         }
 
+        //Crete application
         const application = await Application.create({
             applicant: req.user._id,
             recruiter: job.postedBy,
             job: job._id,
             coverLetter,
+        });
+        //create notification for recuriter
+        await Notification.create({
+            user: job.postedBy,
+            title: "New Job Application",
+            message:`${req.user.firstName} applied for ${job.title}`
         });
 
         return res.status(201).json({
@@ -112,6 +120,12 @@ export const updateApplicationsStatus = async(req, res) =>{
 
         application.status = status;
         await application.save();
+
+        await Notification.create({
+            user: application.applicant,
+            title:"Application update",
+            message:`Your application status has been updated to ${status}`
+        });
 
         return res.status(200).json({
             message:"Application status updated",

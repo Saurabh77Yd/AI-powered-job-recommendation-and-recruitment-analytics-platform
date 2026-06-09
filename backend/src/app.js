@@ -8,6 +8,7 @@ import jobRoutes from "./routes/job.routes.js";
 import applicationRoutes from "./routes/application.routes.js";
 import matchRoutes from "./routes/match.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 
 const app = express();
 //  Middlewares
@@ -23,7 +24,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/match", matchRoutes);
-app.use("/api/analytics", analyticsRoutes)
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/notifications", notificationRoutes);
 //  Health Check Route
 app.get("/", (req, res) => {
   res.send("API is running...");

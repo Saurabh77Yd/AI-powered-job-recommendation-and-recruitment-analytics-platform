@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Notification from "../models/Notification.js";
 
 export const getPendingRecruiters = async(req, res)=>{
     try{
@@ -21,7 +22,7 @@ export const getPendingRecruiters = async(req, res)=>{
 //Aprove recuiter
 export const approveRecruiter = async(req, res)=>{
     try{
-        const user = await user.findById(req.params.id);
+        const user = await User.findById(req.params.id);
         if(!user){
             return res.status(404).json({
                 message: "User not found"
@@ -31,6 +32,12 @@ export const approveRecruiter = async(req, res)=>{
         user.recruiterStatus = "approved";
 
         await user.save();
+        //notification for recruiter approved 
+        await Notification.create({
+            user: user._id,
+            title:"Recruiter approved",
+            message: "Your recruiter account have been approved",
+        });
 
         return res.status(200).json({
             message:"Recruiter approved successfully"
