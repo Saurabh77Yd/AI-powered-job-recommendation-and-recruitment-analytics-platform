@@ -1,5 +1,7 @@
 //Upload to cloudinary
 import cloudinary from "../config/cloudinary.js";
+import pdf from "pdf-parse";
+import genAI from "../config/gemini.js";
 
 export const uploadResumeToCloudinary = async(fileBuffer)=>{
     return new Promise((resolve, reject)=>{
@@ -16,11 +18,27 @@ export const uploadResumeToCloudinary = async(fileBuffer)=>{
         stream.end(fileBuffer)
     });
 };
-//Dummy parser
-export const parseResume = async(fileUrl)=>{
-    return{
-        skills:["React", "Node"],
-        experience:1,
-        education:"B.Tech"
-    }
-}
+//Resume parser
+export const parseResume = async(fileBuffer)=>{
+    const pdfData = await pdf(fileBuffer);
+    const resumeText = pdfData.text;
+
+    const model =  genAI.getGenerativeModel({
+        model:"gemini-2.0-flash"
+    });
+
+    const prompt = `Extarct infromation from this resmue. 
+                    Return only valid JSON:
+                    {
+                        "skills":[],
+                        "experience":0,
+                        "education":""
+                    }
+                    Resume:${resumeText}`;
+    const result = await model.generateContent(prompt);
+
+    const response = result.response.text();
+    return JSON.parse(
+        response.replace(/```JSON|```/g, "")
+    );
+};

@@ -86,7 +86,7 @@ export const uploadResume = async(req,res)=>{
         const result = await uploadResumeToCloudinary(req.file.buffer);
         const fileUrl =result.secure_url;
         //parse data auto
-        const parsedData = await parseResume(fileUrl);
+        const parsedData = await parseResume(req.file.buffer);
 
         const user = await User.findById(req.user._id);
         if(!user){
