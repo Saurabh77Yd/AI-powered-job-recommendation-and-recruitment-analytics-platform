@@ -1,4 +1,5 @@
 import Job from "../models/Job.js";
+import SavedJob from "../models/SavedJob.js";
 
 //Create Job
 export const createJob = async(req, res)=>{
@@ -219,3 +220,84 @@ export const deleteJob = async(req, res)=>{
         })
     }
 }
+//Saved (bookmark) job
+export const saveJob = async(req, res)=>{
+    try{
+        const job = await Job.findById(req.params.id);
+
+        if(!job){
+            return res.status(404).json({
+                message:"Job not found",
+            });
+        }
+
+        const alreadySaved = await SavedJob.findOne({
+            user:req.user._id,
+            job:req.params.id,
+        });
+
+        if(alreadySaved){
+            return res.status(400).json({
+                message:"Job alredy saved",
+            });
+        }
+
+        const savedJob = await SavedJob.create({
+            user: req.params._id,
+            job: req.params.id,
+        });
+
+        return res.status(200).json({
+            message:"Job saved succefully",
+            savedJob,
+        });
+    } catch(error){
+        return res.status(500).json({
+            message:"Server Error",
+            error:error.message,
+        });
+    }
+};
+//get saved job
+export const getSavedJobs = async(req, res)=>{
+    try{
+        const savedJobs = await SavedJob.find({
+            user:req.user._id,
+        }).populate("job").sort({createdAt:-1});
+
+        return res.status(200).json({
+            totalSavedJob: savedJobs.length,
+            savedJobs,
+        });
+    }catch(error){
+        return res.status(500).json({
+            message: "Server Error",
+            error: error.message,
+        });
+    }
+};
+//Removed saved job
+export const removeSavedJob = async(req, res)=>{
+    try{
+        const savedJob = await SavedJob.findOne({
+            user:req.user._id,
+            job:req.params.id,
+        });
+
+        if(!savedJob){
+            return res.status(404).json({
+                message:"Saved job not found",
+            });
+        }
+        await savedJob.deleteOne();
+
+        return res.status(200).json({
+            message:"Saved job removed succefuuly"
+        });
+    }catch(error){
+        return res.status(500).json({
+            message:"Server Error",
+            error:error.message
+        });
+    }
+};
